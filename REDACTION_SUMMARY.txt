@@ -1,0 +1,124 @@
+================================================================================
+BKS ALGORITHM REDACTION SUMMARY
+================================================================================
+Date: 2025-12-28
+Repository: whoknowsball-backend (GitHub Portfolio Version)
+
+OBJECTIVE:
+Complete redaction of proprietary BKS (Ball Knowing Score) algorithm from 
+public repository while maintaining architecture and API contracts.
+
+================================================================================
+FILES MODIFIED (REDACTED)
+================================================================================
+
+1. src/services/bks/BKSCalculator.ts (886 lines → 109 lines)
+   - Replaced entire calculation logic with proprietary notice
+   - Kept class structure and method signatures
+   - All calculation methods now throw "Redacted - Proprietary" errors
+   - Contact info: matthew.wood.wilson@gmail.com
+   - LinkedIn: https://www.linkedin.com/in/matthewwoodwilson/
+
+2. src/services/bks/OverallBKSService.ts (116 lines → 44 lines)
+   - Removed all calculation and database query logic
+   - Kept method signatures for API contract documentation
+   - Methods throw descriptive errors with contact information
+
+3. src/services/bks/types.ts (123 lines - UNCHANGED)
+   - Kept type definitions (no formulas exposed)
+   - Essential for API contract documentation
+   - No proprietary information in comments
+
+================================================================================
+FILES DELETED
+================================================================================
+
+Root Level:
+- test-weight-comparison.ts
+
+Scripts:
+- scripts/recalculate-bks-standalone.ts
+
+Test Files:
+- src/test/bks-readiness.test.ts
+- src/test/low-value-bet.test.ts
+- src/test/nfl-spread-win.test.ts
+- src/test/mlb-underdog-win.test.ts
+- src/test/parlay-playoff-win.test.ts
+- src/test/extreme-parlay-loss.test.ts
+- src/test/parlay-zero-hit.test.ts
+- src/services/bks/BKSCalculator.test.ts
+
+Total: 10 files deleted
+
+================================================================================
+WHAT REMAINS PUBLIC
+================================================================================
+
+SAFE TO EXPOSE:
+✓ Type definitions (BetData, BKSResult, BKSComponents, etc.)
+✓ API route handlers (show endpoint contracts)
+✓ Service class structure (architectural patterns)
+✓ Database schema (in CLAUDE.md)
+✓ Authentication/security middleware
+✓ Job scheduling patterns
+✓ External API integrations (API-Sports, The Odds API)
+
+REDACTED/REMOVED:
+✗ BKS calculation formulas and weights
+✗ Component calculation logic (D, C, P, A, S, K)
+✗ Multiplier calculation (WIN/LOSS/PUSH/VOID logic)
+✗ De-vig algorithms
+✗ Z-score calculations
+✗ Parlay loss closeness calculations
+✗ Overall BKS aggregation logic
+✗ Test cases revealing algorithm behavior
+
+================================================================================
+VERIFICATION
+================================================================================
+
+Run the following to confirm redaction:
+```bash
+# Search for any remaining formula implementations
+grep -r "0.45\|0.18\|0.13\|0.10\|0.04" src/services/bks/
+
+# Verify deleted files don't exist
+ls test-weight-comparison.ts 2>&1 | grep "No such file"
+ls scripts/recalculate-bks-standalone.ts 2>&1 | grep "No such file"
+
+# Check redacted files are small
+wc -l src/services/bks/BKSCalculator.ts src/services/bks/OverallBKSService.ts
+```
+
+Expected output:
+- No weight constants found in BKS files
+- Deleted files return "No such file" errors
+- BKSCalculator.ts: ~109 lines
+- OverallBKSService.ts: ~44 lines
+
+================================================================================
+NEXT STEPS
+================================================================================
+
+1. Review changes: git diff
+2. Test build: npm run build
+3. Verify TypeScript compilation passes
+4. Commit changes with message:
+   "refactor: redact proprietary BKS algorithm for public portfolio"
+5. Push to GitHub portfolio repository
+
+================================================================================
+CONTACT FOR LICENSING
+================================================================================
+
+Email: matthew.wood.wilson@gmail.com
+LinkedIn: https://www.linkedin.com/in/matthewwoodwilson/
+
+The BKS algorithm is available for licensing. Contact for inquiries about:
+- Full source code access
+- Commercial licensing
+- Custom implementations
+- Technical documentation
+
+================================================================================
