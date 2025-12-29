@@ -20,36 +20,104 @@ function getSupabase() {
 /**
  * GET /api/v1/leaderboard/global
  *
- * Returns global BKS rankings.
- * Currently returns placeholder data until real user base exists.
+ * Returns global BKS rankings for all users sorted by overall_bks descending.
+ * Uses Redis caching with 5-minute TTL for performance.
+ *
+ * Query Parameters:
+ * - limit: Number of entries to return (default: 100, max: 500)
+ * - offset: Number of entries to skip for pagination (default: 0)
  *
  * Response:
  * {
  *   leaderboard: [
- *     {rank: 1, username: "BettingPro", bks_score: 87.5, total_bets: 245, win_rate: 0.68}
+ *     { rank: 1, username: "TopBettor", overall_bks: 87.5, total_bets: 245 }
  *   ],
- *   period: "all_time",
- *   last_updated: "2025-10-12T21:15:00.000Z",
- *   is_placeholder: true
+ *   total: 150,
+ *   limit: 100,
+ *   offset: 0,
+ *   updated_at: "2025-12-29T12:00:00.000Z"
  * }
  */
 router.get('/global', async (req: Request, res: Response) => {
   try {
-    // Placeholder data until we have real users
-    const mockLeaderboard = [
-      { rank: 1, username: 'BettingPro', bks_score: 87.5, total_bets: 245, win_rate: 0.68 },
-      { rank: 2, username: 'SharpShooter', bks_score: 82.3, total_bets: 189, win_rate: 0.64 },
-      { rank: 3, username: 'ValueHunter', bks_score: 79.1, total_bets: 312, win_rate: 0.61 },
-      { rank: 4, username: 'OddsWizard', bks_score: 76.8, total_bets: 156, win_rate: 0.58 },
-      { rank: 5, username: 'SportsSavvy', bks_score: 74.2, total_bets: 203, win_rate: 0.55 }
-    ];
+    // Parse pagination parameters
+    const limit = Math.min(Math.max(parseInt(req.query.limit as string) || 100, 1), 500);
+    const offset = Math.max(parseInt(req.query.offset as string) || 0, 0);
 
-    res.json({
-      leaderboard: mockLeaderboard,
-      period: 'all_time',
-      last_updated: new Date().toISOString(),
-      is_placeholder: true
-    });
+    // Cache key includes pagination for proper caching
+    const cacheKey = `leaderboard:global:${limit}:${offset}`;
+
+    // Check Redis cache first (5-minute TTL)
+    try {
+      const cachedData = await getCache<any>(cacheKey);
+      if (cachedData) {
+        console.log(`[Leaderboard] Cache hit for global leaderboard (limit=${limit}, offset=${offset})`);
+        return res.json({
+          ...cachedData,
+          cache_hit: true
+        });
+      }
+    } catch (cacheError) {
+      console.error('[Leaderboard] Redis cache error:', cacheError);
+      // Continue to database query on cache failure
+    }
+
+    const db = getSupabase();
+
+    // Get total count of eligible users (for pagination metadata)
+    const { count: totalCount, error: countError } = await db
+      .from('users')
+      .select('*', { count: 'exact', head: true })
+      .is('deleted_at', null)
+      .gte('total_bets', 1);
+
+    if (countError) {
+      console.error('[Leaderboard] Error counting users:', countError);
+      throw countError;
+    }
+
+    // Query users sorted by overall_bks descending
+    const { data: users, error: usersError } = await db
+      .from('users')
+      .select('username, overall_bks, total_bets')
+      .is('deleted_at', null)
+      .gte('total_bets', 1)
+      .order('overall_bks', { ascending: false })
+      .range(offset, offset + limit - 1);
+
+    if (usersError) {
+      console.error('[Leaderboard] Error fetching users:', usersError);
+      throw usersError;
+    }
+
+    // Map to leaderboard entries with rank
+    const leaderboard = (users || []).map((user, index) => ({
+      rank: offset + index + 1,
+      username: user.username,
+      overall_bks: parseFloat((user.overall_bks || 0).toFixed(1)),
+      total_bets: user.total_bets || 0
+    }));
+
+    const response = {
+      leaderboard,
+      total: totalCount || 0,
+      limit,
+      offset,
+      updated_at: new Date().toISOString(),
+      cache_hit: false
+    };
+
+    // Cache for 5 minutes (300 seconds)
+    try {
+      await setWithExpiry(cacheKey, response, 300);
+      console.log(`[Leaderboard] Cached global leaderboard (${leaderboard.length} entries)`);
+    } catch (cacheError) {
+      console.error('[Leaderboard] Failed to cache response:', cacheError);
+    }
+
+    console.log(`[Leaderboard] Returning ${leaderboard.length} entries (offset=${offset}, total=${totalCount})`);
+    res.json(response);
+
   } catch (error) {
     console.error('[Leaderboard] Global endpoint error:', error);
     res.status(500).json({
