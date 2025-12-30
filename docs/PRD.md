@@ -524,7 +524,7 @@ By decoupling betting skill measurement from financial outcomes, we can create a
 │  ┌────────▼──────────────▼──────────────▼────────┐         │
 │  │         Background Jobs (Cron)                 │         │
 │  │  • GameCreationJob (daily 2AM)                 │         │
-│  │  • OddsMatchingJob (40s interval)              │         │
+│  │  • OddsMatchingJob (30s interval)              │         │
 │  │  • ScoresJob (30s dynamic polling)             │         │
 │  │  • SettlementJob (5min interval)               │         │
 │  │  • ClosingOddsJob (T-2min capture)             │         │
@@ -593,7 +593,7 @@ By decoupling betting skill measurement from financial outcomes, we can create a
 **The Odds API (Secondary):**
 - Role: Betting odds only (h2h, spreads, totals)
 - Quota: ~1,613 requests/day
-- Strategy: 40-second polling, skip if no games in next 4 hours
+- Strategy: 30-second polling, skip if no games in next 4 hours
 
 ### Data Flow: Bet Placement to Settlement
 

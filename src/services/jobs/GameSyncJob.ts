@@ -6,7 +6,7 @@
  * This job ensures games table stays current for proper bet validation.
  *
  * 3-TIER POLLING STRATEGY (matches Odds API refresh rates):
- * - Tier 1 - Live games: Poll every 40 seconds (matches Odds API in-play rate)
+ * - Tier 1 - Live games: Poll every 30 seconds (matches ScoresJob/OddsMatchingJob)
  * - Tier 2 - Upcoming games (<6 hours): Poll every 60 seconds (matches Odds API pre-match rate)
  * - Tier 3 - Distant games (6+ hours): Poll every 15 minutes (quota-efficient)
  *
@@ -49,7 +49,7 @@ class GameSyncJob {
   private lastDistantPoll: number = 0;
 
   // Polling intervals (milliseconds) matching Odds API rates
-  private readonly LIVE_INTERVAL = 40 * 1000;     // 40 seconds (Odds API in-play rate)
+  private readonly LIVE_INTERVAL = 30 * 1000;     // 30 seconds (matches ScoresJob/OddsMatchingJob)
   private readonly UPCOMING_INTERVAL = 60 * 1000;  // 60 seconds (Odds API pre-match rate)
   private readonly DISTANT_INTERVAL = 15 * 60 * 1000; // 15 minutes (quota-efficient)
 
@@ -237,15 +237,15 @@ class GameSyncJob {
       let totalGames = 0;
       const tiersPolled: string[] = [];
 
-      // Tier 1: Live games - poll every 40 seconds (matches Odds API in-play rate)
+      // Tier 1: Live games - poll every 30 seconds (matches Odds API in-play rate)
       if (liveSports.size > 0 && (now - this.lastLivePoll) >= this.LIVE_INTERVAL) {
-        console.log(`[GameSync] ⏱️  Live tier ready (${(now - this.lastLivePoll) / 1000}s elapsed, threshold: 40s)`);
+        console.log(`[GameSync] ⏱️  Live tier ready (${(now - this.lastLivePoll) / 1000}s elapsed, threshold: 30s)`);
         const gamesCount = await this.syncSportsByTier(liveSports, 'LIVE');
         totalGames += gamesCount;
         this.lastLivePoll = now;
-        tiersPolled.push('Live (40s)');
+        tiersPolled.push('Live (30s)');
       } else if (liveSports.size > 0) {
-        console.log(`[GameSync] ⏸️  Live tier skipped (${(now - this.lastLivePoll) / 1000}s elapsed, need 40s)`);
+        console.log(`[GameSync] ⏸️  Live tier skipped (${(now - this.lastLivePoll) / 1000}s elapsed, need 30s)`);
       }
 
       // Tier 2: Upcoming games (<6 hours) - poll every 60 seconds (matches Odds API pre-match rate)

@@ -607,7 +607,7 @@ class JobName {
 |-----|----------|---------|
 | **GameCreationJob** | Daily 2AM + startup | Fetches games from API-Sports for all sports |
 | **GameSyncJob** | 3-tier polling | Synchronizes game data with 3-tier priority system |
-| **OddsMatchingJob** | 40 seconds | Matches Odds API events to games by team/time |
+| **OddsMatchingJob | 30 seconds | Matches Odds API events to games by team/time |
 | **ScoresJob** | 30 seconds | Updates live scores from API-Sports |
 | **SettlementJob** | 5 minutes | Settles completed bets, calculates final BKS |
 | **ClosingOddsJob** | Continuous | Captures odds T-2 min before game start |

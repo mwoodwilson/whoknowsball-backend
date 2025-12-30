@@ -294,7 +294,7 @@ The backend runs several automated jobs to keep data synchronized and settle bet
 ```mermaid
 graph LR
     A[GameCreationJob<br/>Daily 2AM] -->|Creates| B[(Games DB)]
-    C[OddsMatchingJob<br/>40s interval] -->|Matches| B
+    C[OddsMatchingJob<br/>30s interval] -->|Matches| B
     D[ScoresJob<br/>30s interval] -->|Updates| B
     E[SettlementJob<br/>5min interval] -->|Settles| F[(Bets DB)]
     G[ClosingOddsJob<br/>Continuous] -->|Captures| B
@@ -318,7 +318,7 @@ graph LR
 |-----|----------|---------|
 | **GameCreationJob** | Daily 2AM + startup | Fetches upcoming games from API-Sports for all sports |
 | **GameSyncJob** | 3-tier polling | Synchronizes game data with priority-based polling (upcoming/live/completed) |
-| **OddsMatchingJob** | 40 seconds | Matches Odds API events to games by team names and commence time |
+| **OddsMatchingJob | 30 seconds | Matches Odds API events to games by team names and commence time |
 | **ScoresJob** | 30 seconds | Updates live scores from API-Sports for in-progress games |
 | **SettlementJob** | 5 minutes | Settles completed bets and calculates final BKS scores |
 | **ClosingOddsJob** | Continuous | Captures closing odds at T-2 minutes before game start |

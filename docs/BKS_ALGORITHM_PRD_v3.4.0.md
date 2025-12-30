@@ -83,7 +83,7 @@ BKS v3.4.0 uses a **dual-source architecture** optimized after the November 2025
 │                                                                  │
 │  ┌─────────────────┐              ┌─────────────────┐           │
 │  │ GameCreationJob │              │ OddsMatchingJob │           │
-│  │   (Daily 2AM)   │              │   (Every 40s)   │           │
+│  │   (Daily 2AM)   │              │   (Every 30s)   │           │
 │  └────────┬────────┘              └────────┬────────┘           │
 │           │                                │                     │
 │           ▼                                ▼                     │
@@ -128,7 +128,7 @@ BKS v3.4.0 uses a **dual-source architecture** optimized after the November 2025
 | Job | Interval | Purpose | Quota Impact |
 |-----|----------|---------|--------------|
 | **GameCreationJob** | Daily 2AM + startup | Sync games from API-Sports | 7,500/sport/day |
-| **OddsMatchingJob** | 40 seconds | Match Odds API events to games | ~1,613/day |
+| **OddsMatchingJob | 30 seconds | Match Odds API events to games | ~1,613/day |
 | **ScoresJob** | 30 seconds (dynamic) | Update live/final scores | API-Sports |
 | **SettlementJob** | 5 minutes | Settle completed bets, calculate final BKS | DB only |
 | **ClosingOddsJob** | Continuous | Capture T-2 min closing odds | ~50/day |
@@ -1450,7 +1450,7 @@ BKS_RATE_LIMIT_MAX=10
 # Job Intervals (milliseconds)
 LIVE_POLLING_INTERVAL=30000
 FINALIZATION_INTERVAL=300000
-ODDS_MATCHING_INTERVAL=40000
+ODDS_MATCHING_INTERVAL=30000
 
 # BKS Algorithm Overrides
 SIGMA_DEFAULTS_JSON={"americanfootball_nfl":{"variance":1.5}}

@@ -389,12 +389,12 @@ app.listen(PORT, async () => {
       await oddsMatchingJob.run(); // Run once immediately
       console.log('✅ [Jobs] OddsMatchingJob initial run completed');
 
-      // Schedule OddsMatchingJob every 40 seconds (matches live odds frequency)
+      // Schedule OddsMatchingJob every 30 seconds (matches ScoresJob interval)
       setInterval(() => {
         const job = new OddsMatchingJobClass();
         job.run();
-      }, 40 * 1000);
-      console.log('✅ [Jobs] OddsMatchingJob scheduled (every 40s for live odds)');
+      }, 30 * 1000);
+      console.log('✅ [Jobs] OddsMatchingJob scheduled (every 30s for live odds)');
 
       // Step 3: Wait 5 seconds before starting ScoresJob
       console.log('[Jobs] Waiting 5 seconds before starting ScoresJob...');
