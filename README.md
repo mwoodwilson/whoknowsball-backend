@@ -17,15 +17,15 @@
 
 ## Overview
 
-The WhoKnowsBall backend is a Node.js/Express/TypeScript API server that powers a sports betting skill-tracking platform. Unlike traditional sportsbooks, users don't wager real money - instead, the system evaluates each bet through a sophisticated proprietary algorithm that produces a **Ball Knowing Score (BKS)** from 0-100.
+The WhoKnowsBall backend is a Node.js/Express/TypeScript API server that powers a no-cost, sports betting skill-tracking platform. Unlike traditional sportsbooks, users don't wager real money - instead, the system evaluates each bet through a sophisticated proprietary algorithm that produces a **Ball Knowing Score (BKS)** from 0-100.
 
 ### What Makes This Unique
 
-- **Proprietary BKS Algorithm**: A multi-dimensional scoring system that evaluates betting decisions across 6 key metrics (implementation redacted for IP protection)
-- **No Real Money**: Focus on skill measurement rather than gambling
+- **Proprietary BKS Algorithm**: A multi-dimensional scoring system that evaluates betting decisions across 6 key metrics (implementation redacted for IP protection), complete with anti-gaming guardrails, stake-aware scaling, and more
+- **No Real Money**: Focus on skill measurement rather than actual gambling
 - **Market-Aware Analysis**: Incorporates closing line value (CLV) and de-vigged probabilities
 - **Real-Time Processing**: Background jobs for game creation, odds matching, live scores, and bet settlement
-- **API Quota Optimization**: Intelligent caching and circuit breaker patterns to stay within free-tier limits
+- **API Quota Optimization**: Intelligent caching and circuit breaker patterns to stay within tier limits, while maintaining expected in-app experience quality for users
 
 ### Key Features
 
@@ -219,8 +219,8 @@ erDiagram
 
 - **users**: User profiles with BKS statistics (extends Supabase auth.users)
 - **games**: Sports events from API-Sports with live scores
-- **bets**: User betting history with BKS scores
-- **parlay_legs**: Individual legs for multi-bet parlays (max 10 legs)
+- **bets**: User betting history + analytics with BKS scores
+- **parlay_legs**: Individual legs for multi-bet parlays (max 10 leg parlays)
 - **sport_configs**: Sport-specific configurations (variance, margins, periods)
 - **daily_quota_tracking**: API usage monitoring for quota management
 
@@ -335,21 +335,15 @@ The **Ball Knowing Score (BKS)** is a proprietary algorithm that evaluates betti
 
 | Component | Weight | Description |
 |-----------|--------|-------------|
-| **Difficulty (D)** | 30% | How hard was the bet to win? Based on de-vigged fair probability |
-| **Complexity (C)** | 20% | Parlay leg count with correlation adjustments |
-| **Payout (P)** | 15% | Risk/reward potential normalized to reference cap |
-| **Accuracy (A)** | 20% | Closing Line Value (CLV) - did you beat the market? |
-| **Stake (S)** | 10% | Conviction measurement via stake percentile |
-| **Context (K)** | 5% | Game importance (preseason → regular → playoffs → finals) |
+| **Difficulty (D)** | How hard was the bet to win? Based on de-vigged fair probability |
+| **Complexity (C)** | Parlay leg count with correlation adjustments |
+| **Payout (P)** | Risk/reward potential normalized to reference cap |
+| **Accuracy (A)** | Closing Line Value (CLV) - did you beat the market? |
+| **Stake (S)** | Conviction measurement via stake percentile |
+| **Context (K)** | Game importance (preseason → regular → playoffs → finals) |
 
-### Formula
+**Note:** Full algorithm formula is proprietary and redacted from this repository for intellectual property protection.
 
-```
-BKS = Base × M
-
-Where:
-  Base = 100 × (0.30×D + 0.20×C + 0.15×P + 0.20×A + 0.10×S + 0.05×K)
-  M = Outcome multiplier (0.10-1.00 based on result and margin)
 ```
 
 ### Key Features
@@ -596,30 +590,30 @@ whoknowsball-backend/
 
 ## About
 
-### The Product Manager Story
+This project was conceived and developed solo by me! My name is Matt Wilson and I am a Product Lead at Google, exploring the frontier of AI-augmented development. 10 total years of experience in tech + media, with 3 at Hulu and 4.5 at Google. I am also a Certified Ball Knower.
 
-This project was conceived and developed solo by a **former Senior Product Manager at Duolingo** who spent 6 years shipping features used by 100+ million users. After leading teams at a $10B company, they decided to prove they could ship the entire stack themselves - from database schema to UI polish.
+### Why I built this Project
 
-### Why This Project Exists
-
-- **Skill Quantification**: Traditional win/loss records don't capture betting skill - a bettor could get lucky or unlucky. BKS measures decision quality.
-- **No Gambling Regulations**: Since no real money is involved, this avoids legal complexity while still providing competitive engagement.
-- **Technical Challenge**: Building a production-grade backend with complex algorithms, real-time data, and background job orchestration.
+- **Skill Quantification**: Traditional win/loss records don't capture betting skill - a bettor could get lucky or unlucky. BKS comprehensively measures skill and tracks betting quality, weeding out the Ball Believers from the Ball Knowers.
+- **No Gambling Regulations**: Since no real money is involved, this avoids legal complexity while still providing competitive engagement. It was a fun side project that allowed me to exercise creative freedom and apply the technical skillset I've gained from work in a low-stakes environment.
+- **Technical Challenge**: Building a production-grade backend with a complex algorithm, real-time data, and background job orchestration was...not easy. I have much more to learn and many more mistakes to make, but there's no better feeling than challenging yourself to do something and actually doing it.
+- **Bragging Rights**: I know have a legitimate method of quantifying how much more I know about sports than my friends. The group chat will be much quieter moving forward.
 
 ### The Journey
 
-Built over 4 months of nights and weekends:
-- **Week 1-2**: Database schema, Express setup, Supabase integration
-- **Week 3-6**: BKS algorithm design and implementation (v1.0 → v3.4)
-- **Week 7-10**: Background jobs, API integration, quota optimization
-- **Week 11-14**: Authentication, user management, support system
-- **Week 15-16**: Testing, refactoring, documentation
+Built over 3 months of nights and weekends:
+- **Week 1-2**: BKS algorithm design (v1.0 → v3.4), Database schema, Express setup, Supabase integration
+- **Week 3-4**: Authentication, user management, support system
+- **Week 5-6**: Background jobs, API integration, quota optimization
+- **Week 7-8**: Testing + QA, iterating, re-writing documentation, pain
+- **Week 9-12**: More pain 
+- **Week 13**: Ship
 
-### What Makes This Impressive
+### What I'm Most Proud Of
 
-- **Proprietary Algorithm**: Designed and implemented a multi-dimensional scoring system from scratch
-- **Production-Ready**: RLS, rate limiting, health checks, error handling, logging
-- **API Quota Mastery**: Stays within free tiers through caching and circuit breakers
+- **Proprietary Algorithm**: Designed my first multi-dimensional scoring system/algorithm from scratch
+- **Production-Ready**: Implemented RLS, rate limiting, health checks, error handling, and logging
+- **API Quota Mastery**: Designed comprehensive caching system and circuit breakers to stay within API usage tiers
 - **Background Jobs**: Robust job scheduler with error recovery and monitoring
 - **Full Auth System**: Registration, login, 2FA, password reset, account deletion
 - **Clean Architecture**: Separation of concerns, middleware patterns, service layer
@@ -642,8 +636,9 @@ Contact: matthew.wood.wilson@gmail.com
 - **API-Sports** for comprehensive sports data
 - **The Odds API** for real-time betting odds
 - **Redis** for high-performance caching
+- **Anthropic** for building dynamite AI tools, allowing me to express creative freedom in new ways
 
 ---
 
-**Built with passion by a PM who codes.**
-*Duolingo → Full-Stack Solo Founder*
+**Built so I can brag to my friends that I know more about sports than them.**
+*Google → Certified Ball Knower*
