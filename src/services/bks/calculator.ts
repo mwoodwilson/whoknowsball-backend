@@ -1,4 +1,29 @@
-// src/services/bks/calculator.ts
+/**
+ * BKS Calculator - Ball Knowing Score Calculation Engine
+ *
+ * ═══════════════════════════════════════════════════════════════════════════
+ * PROPRIETARY ALGORITHM - REDACTED
+ * ═══════════════════════════════════════════════════════════════════════════
+ *
+ * The Ball Knowing Score (BKS) algorithm is proprietary intellectual property.
+ * This public repository contains a redacted version that demonstrates the
+ * architecture and API contracts without exposing the calculation logic.
+ *
+ * The BKS algorithm evaluates betting skill across multiple dimensions:
+ * - Difficulty: How hard was the bet to win?
+ * - Complexity: Single bet vs parlay complexity
+ * - Payout Potential: Risk/reward assessment
+ * - Accuracy: Closing line value analysis
+ * - Stake Significance: Conviction measurement
+ * - Context: Game importance factors
+ *
+ * Output: A score from 0-100 representing betting skill
+ *
+ * For licensing inquiries: matthew.wood.wilson@gmail.com
+ * LinkedIn: https://www.linkedin.com/in/matthewwoodwilson/
+ *
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
 
 import { SPORT_CONFIGS, BKS_VERSION, COMPONENT_WEIGHTS } from '../../config/constants';
 import { BetInput, BKSComponents, BKSResult } from './types';
@@ -7,92 +32,73 @@ import * as crypto from 'crypto';
 export class BKSCalculator {
   private readonly version = BKS_VERSION;
 
+  /**
+   * Calculate BKS score for a bet
+   *
+   * @param betData - Bet data including odds, stake, market type, outcome
+   * @returns BKS result with score and component breakdown
+   */
   calculate(betData: BetInput): BKSResult {
-    // Calculate all 6 components
-    const components: BKSComponents = {
-      difficulty: this.calculateDifficulty(betData),
-      complexity: this.calculateComplexity(betData),
-      payout: this.calculatePayout(betData),
-      accuracy_clv: this.calculateCLV(betData),
-      stake_significance: this.calculateStakeSignificance(betData),
-      context_novelty: this.calculateContext(betData)
-    };
+    // ═══════════════════════════════════════════════════════════════
+    // CALCULATION LOGIC REDACTED - PROPRIETARY
+    // ═══════════════════════════════════════════════════════════════
+    //
+    // The actual calculation:
+    // 1. Computes difficulty from implied probability
+    // 2. Assesses complexity for parlays
+    // 3. Evaluates payout potential with conviction scaling
+    // 4. Measures closing line value for accuracy
+    // 5. Factors stake significance logarithmically
+    // 6. Applies context multipliers for game importance
+    // 7. Combines with outcome-based multipliers
+    //
+    // Returns score 0-100 representing betting skill
+    // ═══════════════════════════════════════════════════════════════
 
-    // Calculate base score
-    const base = this.calculateBaseScore(components);
-
-    // Calculate multiplier (provisional for now, final after settlement)
-    const multiplier = this.calculateProvisionalMultiplier(betData);
-
-    return {
-      base_score: base,
-      components,
-      bks_provisional: base * multiplier,
-      m_provisional: multiplier,
-      signature: this.signBKS(betData.bet_id || 'temp', base)
-    };
-  }
-
-  private calculateBaseScore(components: BKSComponents): number {
-    const base = 100 * (
-      COMPONENT_WEIGHTS.difficulty * components.difficulty +
-      COMPONENT_WEIGHTS.complexity * components.complexity +
-      COMPONENT_WEIGHTS.payout * components.payout +
-      COMPONENT_WEIGHTS.accuracy_clv * components.accuracy_clv +
-      COMPONENT_WEIGHTS.stake_significance * components.stake_significance +
-      COMPONENT_WEIGHTS.context_novelty * components.context_novelty
+    throw new Error(
+      'BKS calculation is proprietary and has been redacted from this public repository. ' +
+      'Contact matthew.wood.wilson@gmail.com for licensing inquiries.'
     );
-
-    return Math.min(100, Math.max(0, base));
   }
 
-  // We'll implement each component calculator next
-  private calculateDifficulty(betData: BetInput): number {
-    // Real implementation based on v3.1.5
-    const odds = betData.odds || -110;
-    const decimal = this.americanToDecimal(odds);
-    const fairProb = 1 / decimal; // Simplified - should remove vig
-    return Math.min(1, -Math.log(fairProb) / -Math.log(0.01));
+  /**
+   * Get algorithm version
+   */
+  getVersion(): string {
+    return this.version;
   }
 
-  private calculateComplexity(betData: BetInput): number {
-    // Implementation coming next
-    return 0; // Placeholder
+  // All private calculation methods redacted
+  private calculateBaseScore(_components: BKSComponents): number {
+    throw new Error('Redacted - Proprietary');
   }
 
-  private calculatePayout(betData: BetInput): number {
-    const odds = betData.odds || -110;
-    const decimal = this.americanToDecimal(odds);
-    const multiple = decimal - 1;
-    return Math.min(1, Math.log(1 + multiple) / Math.log(21));
+  private calculateDifficulty(_betData: BetInput): number {
+    throw new Error('Redacted - Proprietary');
   }
 
-  private americanToDecimal(odds: number): number {
-    if (odds > 0) {
-      return 1 + (odds / 100);
-    } else {
-      return 1 + (100 / Math.abs(odds));
-    }
+  private calculateComplexity(_betData: BetInput): number {
+    throw new Error('Redacted - Proprietary');
   }
 
-  private calculateCLV(betData: BetInput): number {
-    // Implementation coming next
-    return 0.5; // Placeholder
+  private calculatePayout(_betData: BetInput): number {
+    throw new Error('Redacted - Proprietary');
   }
 
-  private calculateStakeSignificance(betData: BetInput): number {
-    // Implementation coming next
-    return 0.5; // Placeholder
+  private calculateCLV(_betData: BetInput): number {
+    throw new Error('Redacted - Proprietary');
   }
 
-  private calculateContext(betData: BetInput): number {
-    // Implementation coming next
-    return 0.5; // Placeholder
+  private calculateStakeSignificance(_betData: BetInput): number {
+    throw new Error('Redacted - Proprietary');
   }
 
-  private calculateProvisionalMultiplier(betData: BetInput): number {
-    // For pending bets, return neutral
-    return 0.5;
+  private calculateContext(_betData: BetInput): number {
+    throw new Error('Redacted - Proprietary');
+  }
+
+  private calculateProvisionalMultiplier(_betData: BetInput): number {
+    throw new Error('Redacted - Proprietary');
   }
 
   private signBKS(betId: string, bks: number): string {
@@ -108,17 +114,5 @@ export class BKSCalculator {
       .createHmac('sha256', secret)
       .update(JSON.stringify(payload))
       .digest('hex');
-  }
-
-  private calculateTrueProbability(oddsSide: number, oddsOpposing: number): {side: number, opposing: number, vig: number} {
-    const probSide = 1 / oddsSide;
-    const probOpposing = 1 / oddsOpposing;
-    const totalProb = probSide + probOpposing;
-
-    return {
-      side: probSide / totalProb,
-      opposing: probOpposing / totalProb,
-      vig: totalProb - 1
-    };
   }
 }

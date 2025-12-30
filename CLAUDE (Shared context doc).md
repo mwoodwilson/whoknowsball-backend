@@ -67,7 +67,7 @@ Note: Users don't wager real money - instead, the app measures betting skill thr
 | API | Purpose | Rate Limit |
 |-----|---------|------------|
 | **API-Sports** (PRIMARY) | Game data & scores | 7,500/day per sport |
-| **The Odds API** (SECONDARY) | Betting odds | ~1,613/day |
+| **The Odds API** (SECONDARY) | Betting odds | ~166,667/day (5M/month) |
 
 ## 3. API Contracts
 
@@ -405,7 +405,7 @@ The algorithm evaluates bets across six dimensions:
 | API | Daily Limit | Strategy |
 |-----|-------------|----------|
 | API-Sports | 7,500/sport | Primary for games/scores |
-| The Odds API | ~1,613 | Secondary for odds only |
+| The Odds API | ~166,667 (5M/month) | Secondary for odds only |
 | Supabase | Free tier | 500MB database, 2GB bandwidth |
 | Redis (Upstash) | 10,000 commands | 60s TTL for odds |
 
@@ -675,7 +675,7 @@ GET /sports/{sport}/odds?regions=us&markets=h2h,spreads,totals
 // Sport keys:
 { americanfootball_nfl, basketball_nba, baseball_mlb, icehockey_nhl }
 
-// Rate limit: ~1,613/day (500 requests remaining = 1,613 effective)
+// Rate limit: ~166,667/day (5M/month quota)
 ```
 
 ### Team Name Normalization

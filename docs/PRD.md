@@ -592,7 +592,7 @@ By decoupling betting skill measurement from financial outcomes, we can create a
 
 **The Odds API (Secondary):**
 - Role: Betting odds only (h2h, spreads, totals)
-- Quota: ~1,613 requests/day
+- Quota: ~166,667 requests/day (5M/month)
 - Strategy: 30-second polling, skip if no games in next 4 hours
 
 ### Data Flow: Bet Placement to Settlement
@@ -668,22 +668,18 @@ By decoupling betting skill measurement from financial outcomes, we can create a
 
 The Ball Knowing Score quantifies **betting skill on a 0-100 scale** by evaluating bets across six dimensions:
 
-1. **Difficulty (45%)** — How hard was the bet to win? (Based on fair probability)
-2. **Complexity (18%)** — How sophisticated was the bet construction? (Parlay legs)
-3. **Payout (13%)** — How much conviction did you show? (Stake-weighted return multiple)
-4. **Accuracy (10%)** — Did you beat the market? (Closing line value)
-5. **Stake (10%)** — How significant was the wager? (Logarithmic scaling)
-6. **Context (4%)** — How important was the game? (Playoffs > regular season)
+1. **Difficulty** — How hard was the bet to win? (Based on fair probability)
+2. **Complexity** — How sophisticated was the bet construction? (Parlay legs)
+3. **Payout** — How much conviction did you show? (Stake-weighted return multiple)
+4. **Accuracy** — Did you beat the market? (Closing line value)
+5. **Stake** — How significant was the wager? (Logarithmic scaling)
+6. **Context** — How important was the game? (Playoffs > regular season)
 
-### Master Formula
+### Algorithm
 
-```
-BKS = Base × M
+The BKS algorithm combines these six components with proprietary weighting and applies outcome-based multipliers to produce a final score from 0-100.
 
-Where:
-  Base = 100 × (0.45×D + 0.18×C + 0.13×P + 0.10×A + 0.10×S + 0.04×K)
-  M = Outcome Multiplier [0.10, 1.00] based on WIN/LOSS/PUSH
-```
+**Note:** The complete algorithm formula, component weights, and calculation logic are proprietary intellectual property and have been redacted from this public repository. For licensing inquiries, contact matthew.wood.wilson@gmail.com.
 
 ### Key Invariants
 

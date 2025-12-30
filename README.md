@@ -553,7 +553,7 @@ whoknowsball-backend/
 | API | Purpose | Rate Limit |
 |-----|---------|------------|
 | **API-Sports** | Game data & live scores | 7,500/day per sport |
-| **The Odds API** | Betting odds | ~1,613/day |
+| **The Odds API** | Betting odds | ~166,667/day (5M/month) |
 
 ---
 

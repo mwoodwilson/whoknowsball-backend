@@ -42,8 +42,8 @@ export class OddsAPIService {
   private apiKey: string;
   private baseURL = 'https://api.the-odds-api.com/v4';
   private supabase;
-  private readonly MONTHLY_QUOTA = 100000; // 100k monthly quota
-  private readonly DAILY_QUOTA = 1613; // 50k / 31 days = ~1613 per day (with 50k buffer)
+  private readonly MONTHLY_QUOTA = 5000000; // 5M monthly quota
+  private readonly DAILY_QUOTA = 166667; // 5M / 30 days = ~166,667 per day
 
   // Sport keys mapping
   private readonly SPORTS = {
