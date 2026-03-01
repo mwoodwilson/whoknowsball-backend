@@ -588,38 +588,6 @@ whoknowsball-backend/
 
 ---
 
-## About
-
-This project was conceived and developed solo by me! My name is Matt Wilson and I am a Product Lead at Google, exploring the frontier of AI-augmented development. 10 total years of experience in tech + media, with 3 at Hulu and 4.5 at Google. I am also a Certified Ball Knower.
-
-### Why I built this Project
-
-- **Skill Quantification**: Traditional win/loss records don't capture betting skill - a bettor could get lucky or unlucky. BKS comprehensively measures skill and tracks betting quality, weeding out the Ball Believers from the Ball Knowers.
-- **No Gambling Regulations**: Since no real money is involved, this avoids legal complexity while still providing competitive engagement. It was a fun side project that allowed me to exercise creative freedom and apply the technical skillset I've gained from work in a low-stakes environment.
-- **Technical Challenge**: Building a production-grade backend with a complex algorithm, real-time data, and background job orchestration was...not easy. I have much more to learn and many more mistakes to make, but there's no better feeling than challenging yourself to do something and actually doing it.
-- **Bragging Rights**: I know have a legitimate method of quantifying how much more I know about sports than my friends. The group chat will be much quieter moving forward.
-
-### The Journey
-
-Built over 3 months of nights and weekends:
-- **Week 1-2**: BKS algorithm design (v1.0 → v3.4), Database schema, Express setup, Supabase integration
-- **Week 3-4**: Authentication, user management, support system
-- **Week 5-6**: Background jobs, API integration, quota optimization
-- **Week 7-8**: Testing + QA, iterating, re-writing documentation, pain
-- **Week 9-12**: More pain 
-- **Week 13**: Ship
-
-### What I'm Most Proud Of
-
-- **Proprietary Algorithm**: Designed my first multi-dimensional scoring system/algorithm from scratch
-- **Production-Ready**: Implemented RLS, rate limiting, health checks, error handling, and logging
-- **API Quota Mastery**: Designed comprehensive caching system and circuit breakers to stay within API usage tiers
-- **Background Jobs**: Robust job scheduler with error recovery and monitoring
-- **Full Auth System**: Registration, login, 2FA, password reset, account deletion
-- **Clean Architecture**: Separation of concerns, middleware patterns, service layer
-
----
-
 ## License
 
 **Proprietary** - All rights reserved.
