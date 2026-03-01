@@ -342,7 +342,7 @@ The **Ball Knowing Score (BKS)** is a proprietary algorithm that evaluates betti
 | **Stake (S)** | Conviction measurement via stake percentile |
 | **Context (K)** | Game importance (preseason → regular → playoffs → finals) |
 
-**Note:** Full algorithm formula is proprietary and redacted from this repository for intellectual property protection.
+See [[here](BKS_ALGORITHM_OPEN_SOURCE.md)] for the full open-source algorithm.
 
 ```
 
