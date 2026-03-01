@@ -333,8 +333,8 @@ The **Ball Knowing Score (BKS)** is a proprietary algorithm that evaluates betti
 
 ### Algorithm Components
 
-| Component | Weight | Description |
-|-----------|--------|-------------|
+| Component | Description |
+|-----------|-------------|
 | **Difficulty (D)** | How hard was the bet to win? Based on de-vigged fair probability |
 | **Complexity (C)** | Parlay leg count with correlation adjustments |
 | **Payout (P)** | Risk/reward potential normalized to reference cap |
