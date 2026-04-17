@@ -609,4 +609,4 @@ Contact: matthew.wood.wilson@gmail.com
 ---
 
 **Built so I can brag to my friends that I know more about sports than them.**
-*Google → Certified Ball Knower*
+*PM with 10 years of experience in tech + media. Certified Ball Knower.*
