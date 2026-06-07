@@ -1,0 +1,33 @@
+{
+  "expo": {
+    "name": "Corner",
+    "slug": "boxing-trainer",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#0A0A0A"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.corner.boxingtrainer",
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "Corner uses the microphone for voice commands (future feature)."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#0A0A0A"
+      },
+      "package": "com.corner.boxingtrainer"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-speech"
+    ]
+  }
+}
