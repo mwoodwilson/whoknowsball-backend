@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Corner — Boxing Trainer</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #0A0A0A;
+    --surface:   #161616;
+    --elevated:  #1E1E1E;
+    --border:    #2A2A2A;
+    --primary:   #E8342A;
+    --primary-dk:#B02620;
+    --primary-glow: rgba(232,52,42,0.13);
+    --rest:      #3B82F6;
+    --rest-glow: rgba(59,130,246,0.13);
+    --text:      #F5F5F5;
+    --text-sec:  #9CA3AF;
+    --text-muted:#6B7280;
+    --warning:   #EAB308;
+    --success:   #22C55E;
+    --white:     #FFFFFF;
+  }
+
+  body {
+    background: #1a1a1a;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: 32px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Phone shell */
+  .phone {
+    width: 393px;
+    height: 852px;
+    background: var(--bg);
+    border-radius: 52px;
+    box-shadow:
+      0 0 0 2px #2a2a2a,
+      0 0 0 4px #111,
+      0 32px 80px rgba(0,0,0,0.7),
+      inset 0 0 0 1px #333;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Status bar */
+  .status-bar {
+    height: 54px;
+    display: flex;
+    align-items: flex-end;
+    padding: 0 28px 8px;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .status-time { font-size: 15px; font-weight: 600; color: var(--text); }
+  .status-icons { display: flex; align-items: center; gap: 6px; color: var(--text); font-size: 13px; }
+  .status-icons svg { width: 16px; height: 16px; fill: var(--text); }
+
+  /* Screens */
+  .screen {
+    flex: 1;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .screen.active { display: flex; }
+
+  /* ── SETUP SCREEN ── */
+  #setup-screen {
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+  #setup-screen::-webkit-scrollbar { display: none; }
+
+  .setup-header {
+    padding: 20px 24px 28px;
+  }
+  .logo {
+    font-size: 34px;
+    font-weight: 900;
+    color: var(--primary);
+    letter-spacing: 6px;
+  }
+  .tagline {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    letter-spacing: 1px;
+  }
+
+  .section {
+    padding: 0 24px 20px;
+  }
+  .section-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-muted);
+    letter-spacing: 1.5px;
+    margin-bottom: 10px;
+  }
+
+  .chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .chip {
+    padding: 7px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-sec);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+  }
+  .chip:hover { border-color: #444; }
+  .chip.selected {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: var(--white);
+  }
+
+  .focus-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .focus-chip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+  }
+  .focus-chip:hover { border-color: #444; }
+  .focus-chip.selected {
+    border-color: var(--primary);
+    background: var(--primary-glow);
+  }
+  .focus-icon { font-size: 18px; line-height: 1; }
+  .focus-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-sec);
+  }
+  .focus-chip.selected .focus-label { color: var(--text); }
+
+  .intensity-stack { display: flex; flex-direction: column; gap: 8px; }
+  .intensity-chip {
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+  }
+  .intensity-chip:hover { border-color: #444; }
+  .intensity-chip.selected {
+    border-color: var(--primary);
+    background: var(--primary-glow);
+  }
+  .intensity-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-sec);
+  }
+  .intensity-chip.selected .intensity-name { color: var(--primary); }
+  .intensity-desc {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .summary-pill {
+    margin: 0 24px 16px;
+    padding: 12px 16px;
+    border-radius: 12px;
+    background: var(--surface);
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-sec);
+    border: 1px solid var(--border);
+  }
+
+  .footer {
+    padding: 12px 24px 32px;
+    border-top: 1px solid var(--border);
+    background: var(--bg);
+    flex-shrink: 0;
+  }
+  .start-btn {
+    width: 100%;
+    padding: 16px;
+    border-radius: 16px;
+    background: var(--primary);
+    border: none;
+    color: var(--white);
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+  }
+  .start-btn:hover { background: #d42d24; }
+  .start-btn:active { transform: scale(0.98); }
+
+  /* ── WORKOUT SCREEN ── */
+  #workout-screen {
+    position: relative;
+    padding-bottom: 24px;
+  }
+
+  .workout-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+  }
+  .phase-label {
+    font-size: 20px;
+    font-weight: 900;
+    letter-spacing: 3px;
+  }
+  .round-counter {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+  }
+
+  .ring-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .ring {
+    width: 280px;
+    height: 280px;
+    border-radius: 50%;
+    border: 3px solid var(--primary);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary-glow);
+    box-shadow: 0 0 40px rgba(232,52,42,0.25);
+    transition: border-color 0.4s, background 0.4s, box-shadow 0.4s;
+    animation: pulse 1.8s ease-in-out infinite;
+  }
+  .ring.rest {
+    border-color: var(--rest);
+    background: var(--rest-glow);
+    box-shadow: 0 0 40px rgba(59,130,246,0.25);
+    animation: none;
+  }
+  .ring.countdown {
+    border-color: var(--text-muted);
+    background: transparent;
+    box-shadow: none;
+    animation: none;
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50%       { transform: scale(1.04); }
+  }
+  .timer-display {
+    font-size: 82px;
+    font-weight: 900;
+    color: var(--text);
+    letter-spacing: -2px;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    transition: color 0.3s;
+  }
+  .timer-display.warning { color: var(--primary); }
+  .timer-sub {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    margin-top: 4px;
+    color: var(--primary);
+    transition: color 0.4s;
+  }
+  .timer-sub.rest { color: var(--rest); }
+  .timer-sub.muted { color: var(--text-muted); }
+
+  .callout-area {
+    min-height: 80px;
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .callout-text {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text);
+    text-align: center;
+    line-height: 1.35;
+    opacity: 0;
+    transition: opacity 0.35s;
+  }
+  .callout-text.visible { opacity: 1; }
+
+  .controls {
+    padding: 0 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .pause-btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 16px;
+    background: var(--elevated);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .pause-btn:hover { background: #2a2a2a; }
+  .stop-btn {
+    width: 100%;
+    padding: 10px;
+    border-radius: 16px;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: color 0.15s;
+  }
+  .stop-btn:hover { color: var(--primary); }
+
+  /* ── COMPLETE SCREEN ── */
+  #complete-screen {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    padding: 32px 24px;
+    gap: 24px;
+  }
+  #complete-screen.active { display: flex; }
+
+  .complete-header { text-align: center; }
+  .complete-glove { font-size: 52px; margin-bottom: 12px; }
+  .complete-title {
+    font-size: 26px;
+    font-weight: 900;
+    color: var(--primary);
+    letter-spacing: 3px;
+  }
+  .complete-sub {
+    font-size: 14px;
+    color: var(--text-sec);
+    margin-top: 8px;
+  }
+
+  .stats-card {
+    background: var(--surface);
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    padding: 4px 16px;
+  }
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .stat-row:last-child { border-bottom: none; }
+  .stat-label { font-size: 13px; color: var(--text-muted); }
+  .stat-value { font-size: 14px; font-weight: 700; color: var(--text); }
+
+  .motivational {
+    font-size: 14px;
+    color: var(--text-sec);
+    text-align: center;
+    line-height: 1.6;
+    font-style: italic;
+  }
+
+  .complete-actions { display: flex; flex-direction: column; gap: 8px; }
+  .go-again-btn {
+    width: 100%;
+    padding: 16px;
+    border-radius: 16px;
+    background: var(--primary);
+    border: none;
+    color: var(--white);
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .go-again-btn:hover { background: #d42d24; }
+  .change-btn {
+    width: 100%;
+    padding: 12px;
+    border-radius: 16px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-sec);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  .change-btn:hover { border-color: #444; }
+
+  /* Home indicator */
+  .home-indicator {
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: var(--bg);
+  }
+  .home-bar {
+    width: 134px;
+    height: 5px;
+    border-radius: 3px;
+    background: #555;
+  }
+
+  /* Paused overlay badge */
+  .paused-badge {
+    align-self: center;
+    padding: 4px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--warning);
+    color: var(--warning);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin-bottom: 4px;
+    display: none;
+  }
+  .paused-badge.visible { display: block; }
+
+  /* Sidebar labels */
+  .sidebar {
+    position: fixed;
+    left: calc(50% - 196px - 180px);
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 160px;
+  }
+  .sidebar-note {
+    background: #1e1e1e;
+    border: 1px solid #2a2a2a;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 12px;
+    color: #888;
+    line-height: 1.5;
+  }
+  .sidebar-note strong { color: #bbb; display: block; margin-bottom: 4px; }
+
+  @media (max-width: 800px) {
+    .sidebar { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Sidebar annotations -->
+<div class="sidebar">
+  <div class="sidebar-note">
+    <strong>Setup Screen</strong>
+    Configure rounds, duration, rest time, focus areas, and trainer intensity. All local state — no network needed.
+  </div>
+  <div class="sidebar-note">
+    <strong>Voice Trainer</strong>
+    expo-speech fires callouts at semi-random intervals (5–20s based on intensity) with automatic 30s/10s warnings.
+  </div>
+  <div class="sidebar-note">
+    <strong>Try it</strong>
+    Press START TRAINING to see the workout screen. The timer and callouts simulate the real app.
+  </div>
+</div>
+
+<!-- Phone shell -->
+<div class="phone">
+  <div class="status-bar">
+    <span class="status-time">9:41</span>
+    <span class="status-icons">
+      <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3a4.237 4.237 0 00-6 0zm-4-4l2 2a7.074 7.074 0 0110 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+    </span>
+  </div>
+
+  <!-- SETUP SCREEN -->
+  <div id="setup-screen" class="screen active">
+    <div class="setup-header">
+      <div class="logo">CORNER</div>
+      <div class="tagline">Your boxing trainer</div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">ROUNDS</div>
+      <div class="chip-row" id="rounds-chips"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">ROUND LENGTH</div>
+      <div class="chip-row" id="duration-chips"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">REST BETWEEN ROUNDS</div>
+      <div class="chip-row" id="rest-chips"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">FOCUS AREAS &nbsp;<span style="opacity:.5;font-weight:400;font-size:10px">select one or more</span></div>
+      <div class="focus-grid" id="focus-grid"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">TRAINER INTENSITY</div>
+      <div class="intensity-stack" id="intensity-stack"></div>
+    </div>
+
+    <div class="summary-pill" id="summary-pill"></div>
+
+    <div class="footer">
+      <button class="start-btn" onclick="startWorkout()">START TRAINING</button>
+    </div>
+  </div>
+
+  <!-- WORKOUT SCREEN -->
+  <div id="workout-screen" class="screen">
+    <div class="workout-top">
+      <div class="phase-label" id="phase-label" style="color: var(--primary)">GET READY</div>
+      <div class="round-counter" id="round-counter"></div>
+    </div>
+
+    <div class="ring-container">
+      <div class="ring countdown" id="timer-ring">
+        <div class="timer-display" id="timer-display">10</div>
+        <div class="timer-sub muted" id="timer-sub">seconds</div>
+      </div>
+    </div>
+
+    <div class="callout-area">
+      <div class="callout-text" id="callout-text">Get ready...</div>
+    </div>
+
+    <div class="paused-badge" id="paused-badge">PAUSED</div>
+
+    <div class="controls">
+      <button class="pause-btn" id="pause-btn" onclick="togglePause()">⏸&nbsp; PAUSE</button>
+      <button class="stop-btn" onclick="stopWorkout()">STOP</button>
+    </div>
+  </div>
+
+  <!-- COMPLETE SCREEN -->
+  <div id="complete-screen" class="screen">
+    <div class="complete-header">
+      <div class="complete-glove">🥊</div>
+      <div class="complete-title">WORKOUT COMPLETE</div>
+      <div class="complete-sub">Great session. You put in the work.</div>
+    </div>
+
+    <div class="stats-card" id="stats-card"></div>
+
+    <div class="motivational">You went the full distance. That's what champions do.</div>
+
+    <div class="complete-actions">
+      <button class="go-again-btn" onclick="goAgain()">GO AGAIN</button>
+      <button class="change-btn" onclick="goToSetup()">CHANGE SETTINGS</button>
+    </div>
+  </div>
+
+  <div class="home-indicator"><div class="home-bar"></div></div>
+</div>
+
+<script>
+// ── Config Data ──────────────────────────────────────────────
+const ROUNDS_OPTIONS   = [1, 2, 3, 4, 5, 6, 8, 10, 12];
+const DURATION_OPTIONS = [
+  {label:'1:00',s:60},{label:'1:30',s:90},{label:'2:00',s:120},
+  {label:'3:00',s:180},{label:'4:00',s:240},{label:'5:00',s:300}
+];
+const REST_OPTIONS = [
+  {label:'30s',s:30},{label:'45s',s:45},{label:'1:00',s:60},
+  {label:'1:30',s:90},{label:'2:00',s:120}
+];
+const FOCUS_AREAS = [
+  {id:'jabs',icon:'🥊',label:'Jabs'},
+  {id:'crosses',icon:'✊',label:'Crosses'},
+  {id:'hooks',icon:'↩️',label:'Hooks'},
+  {id:'uppercuts',icon:'⬆️',label:'Uppercuts'},
+  {id:'combinations',icon:'🔥',label:'Combinations'},
+  {id:'defense',icon:'🛡️',label:'Defense'},
+  {id:'footwork',icon:'👟',label:'Footwork'},
+  {id:'bodyShots',icon:'💥',label:'Body Shots'},
+];
+const INTENSITIES = [
+  {id:'beginner',label:'Beginner',desc:'Slow pace, basic combos'},
+  {id:'intermediate',label:'Intermediate',desc:'Steady pace, 2–3 punch combos'},
+  {id:'advanced',label:'Advanced',desc:'Fast pace, complex combos'},
+];
+
+// ── Trainer Callouts ─────────────────────────────────────────
+const CALLOUTS = {
+  jabs:['Jab! Jab! Double jab!','Keep that jab in his face!','Snap that jab back! Hands up!','Jab every time you move!','Flick it! Quick jab, quick jab!','Stay behind the jab!','Triple jab, come on!'],
+  crosses:['Jab, cross! One, two!','Snap that right hand!','Rotate — turn your hip into it!','One, two! One, two! Keep the pace!','Pivot out after the two!','Straight right hand! Down the pipe!'],
+  hooks:['Left hook! Dig it in!','One, two, three! Jab, cross, hook!','Hook to the body, hook to the head!','Turn that hook over!','Body hook! Bend your knees and dig!'],
+  uppercuts:['Uppercut! Dig deep!','One, two, uppercut! Drive up through it!','Dip and uppercut! Use your legs!','Rip those uppercuts! Don\'t stop!'],
+  combinations:['One, two, three!','One, two, three, four! Don\'t stop!','Double jab, cross, hook! Move!','Throw fours! Four-punch combinations!','Let your hands go! Don\'t hold back!','Burst! Burst! Throw a burst!','One, two, three — circle away!'],
+  defense:['Slip left! Roll! Slip right!','Hands up! Peek-a-boo!','Bob and weave! Don\'t be a statue!','Move your head! Keep it moving!','Parry! Parry and counter!','Head movement! Head movement!'],
+  footwork:['Move! Circle left!','Stay light on your feet!','Pivot! Use that pivot!','Don\'t back straight up — angle out!','Cut the ring! Don\'t give him room!'],
+  bodyShots:['Body shot! Work the body!','Jab to the body, cross to the head!','Dig that left hook to the liver!','Body, body, head! Switch levels!','Break down the body!'],
+  encouragement:['That\'s it! Beautiful!','Looking good! Stay sharp!','Don\'t slow down!','Stay relaxed! Breathe!','Good work! Keep it coming!','Chin down, eyes up!','Trust your training!'],
+};
+
+const TIME_WARNINGS = {
+  sixty: 'Sixty seconds! Stay strong!',
+  thirty: 'Thirty seconds! Don\'t slow down!',
+  ten: 'Ten seconds! Everything you\'ve got — go!',
+};
+const REST_START = ['Time! Good round. Rest.','That\'s it — breathe. Walk it out.','Good work. Rest now, breathe.'];
+const REST_MID   = ['Breathe. You\'re doing great.','Stay loose — shake out those arms.','Nice work. Stay focused.'];
+const REST_10s   = ['Get ready. Next round coming up.','Ten seconds. Let\'s go.','Almost time. Get your hands up.'];
+
+// ── State ────────────────────────────────────────────────────
+let cfg = { rounds:3, roundDuration:180, restDuration:60, focusAreas:['combinations'], intensity:'intermediate' };
+let phase = 'pre_countdown'; // pre_countdown | round | rest | complete
+let currentRound = 1;
+let secondsLeft = 10;
+let paused = false;
+let tickInterval = null;
+let calloutTimeouts = [];
+let workStartTime = null;
+
+function pick(arr) { return arr[Math.floor(Math.random()*arr.length)]; }
+
+function buildPool() {
+  let pool = [];
+  cfg.focusAreas.forEach(f => pool.push(...(CALLOUTS[f]||[])));
+  const enc = [...CALLOUTS.encouragement];
+  const n = Math.max(1, Math.floor(pool.length * 0.2));
+  pool.push(...enc.slice(0, n));
+  // shuffle
+  for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}
+  return pool;
+}
+
+let calloutPool = [];
+let poolIdx = 0;
+function nextCallout() {
+  if(!calloutPool.length) calloutPool = buildPool();
+  const t = calloutPool[poolIdx % calloutPool.length];
+  poolIdx++;
+  if(poolIdx % calloutPool.length === 0) calloutPool = buildPool();
+  return t;
+}
+
+// ── Callout display ──────────────────────────────────────────
+function showCallout(text) {
+  const el = document.getElementById('callout-text');
+  el.classList.remove('visible');
+  setTimeout(() => { el.textContent = text; el.classList.add('visible'); }, 50);
+}
+
+function scheduleCallout(text, ms) {
+  const id = setTimeout(() => showCallout(text), ms);
+  calloutTimeouts.push(id);
+}
+
+function clearCallouts() {
+  calloutTimeouts.forEach(clearTimeout);
+  calloutTimeouts = [];
+}
+
+function getInterval() {
+  const ranges = {beginner:[13000,20000], intermediate:[8000,14000], advanced:[5000,10000]};
+  const [lo, hi] = ranges[cfg.intensity];
+  return lo + Math.random()*(hi-lo);
+}
+
+function scheduleRound(roundNum, duration) {
+  clearCallouts();
+  // Round start
+  scheduleCallout(`Round ${roundNum}! Let's go!`, 100);
+
+  // Spread callouts across the round (avoid last 35s)
+  let cursor = 3000;
+  const safeEnd = (duration - 35) * 1000;
+  while(cursor < safeEnd) {
+    scheduleCallout(nextCallout(), cursor);
+    cursor += getInterval();
+  }
+  // Time warnings
+  if(duration > 65) scheduleCallout(TIME_WARNINGS.sixty, (duration-60)*1000);
+  if(duration > 35) scheduleCallout(TIME_WARNINGS.thirty, (duration-30)*1000);
+  if(duration > 12) scheduleCallout(TIME_WARNINGS.ten,    (duration-10)*1000);
+}
+
+function scheduleRest(duration, nextRound, isFinal) {
+  clearCallouts();
+  scheduleCallout(pick(REST_START), 100);
+  if(isFinal) { scheduleCallout('That\'s the session! Great work today.', 2500); return; }
+  if(duration > 25) scheduleCallout(pick(REST_MID), Math.floor(duration/2)*1000);
+  if(duration > 12) scheduleCallout(pick(REST_10s), (duration-10)*1000);
+  if(duration > 4)  scheduleCallout('Three... two... one...', (duration-3)*1000);
+}
+
+// ── Timer ────────────────────────────────────────────────────
+function formatTime(s) {
+  const m = Math.floor(s/60), sec = s%60;
+  return `${m}:${sec.toString().padStart(2,'0')}`;
+}
+
+function updateTimerUI() {
+  const display = document.getElementById('timer-display');
+  const sub     = document.getElementById('timer-sub');
+  const ring    = document.getElementById('timer-ring');
+  const phaseEl = document.getElementById('phase-label');
+  const counter = document.getElementById('round-counter');
+
+  if(phase === 'pre_countdown') {
+    display.textContent = secondsLeft;
+    display.className   = 'timer-display';
+    sub.textContent     = 'seconds';
+    sub.className       = 'timer-sub muted';
+    ring.className      = 'ring countdown';
+    phaseEl.textContent = 'GET READY';
+    phaseEl.style.color = 'var(--text-muted)';
+    counter.textContent = '';
+  } else if(phase === 'round') {
+    display.textContent = formatTime(secondsLeft);
+    display.className   = secondsLeft <= 10 ? 'timer-display warning' : 'timer-display';
+    sub.textContent     = 'remaining';
+    sub.className       = 'timer-sub';
+    ring.className      = 'ring';
+    phaseEl.textContent = `ROUND ${currentRound}`;
+    phaseEl.style.color = 'var(--primary)';
+    counter.textContent = `${currentRound} / ${cfg.rounds}`;
+  } else if(phase === 'rest') {
+    display.textContent = formatTime(secondsLeft);
+    display.className   = 'timer-display';
+    sub.textContent     = 'rest';
+    sub.className       = 'timer-sub rest';
+    ring.className      = 'ring rest';
+    phaseEl.textContent = 'REST';
+    phaseEl.style.color = 'var(--rest)';
+    counter.textContent = currentRound < cfg.rounds ? `NEXT: ROUND ${currentRound+1}` : '';
+  }
+}
+
+function transition() {
+  if(phase === 'pre_countdown') {
+    phase = 'round'; currentRound = 1;
+    secondsLeft = cfg.roundDuration;
+    scheduleRound(1, cfg.roundDuration);
+  } else if(phase === 'round') {
+    if(currentRound >= cfg.rounds) {
+      phase = 'complete';
+      scheduleRest(0, 0, true);
+      clearInterval(tickInterval);
+      setTimeout(showComplete, 3500);
+      return;
+    }
+    phase = 'rest'; secondsLeft = cfg.restDuration;
+    scheduleRest(cfg.restDuration, currentRound+1, false);
+  } else if(phase === 'rest') {
+    currentRound++;
+    phase = 'round'; secondsLeft = cfg.roundDuration;
+    scheduleRound(currentRound, cfg.roundDuration);
+  }
+  updateTimerUI();
+}
+
+function tick() {
+  if(paused) return;
+  secondsLeft--;
+  updateTimerUI();
+  if(secondsLeft <= 0) transition();
+}
+
+// ── Screen transitions ───────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function startWorkout() {
+  phase = 'pre_countdown';
+  currentRound = 1;
+  secondsLeft = 10;
+  paused = false;
+  calloutPool = buildPool();
+  poolIdx = 0;
+  workStartTime = Date.now();
+
+  showScreen('workout-screen');
+  updateTimerUI();
+  showCallout('Get ready...');
+  setTimeout(() => scheduleCallout('Get ready. Round one starts in ten seconds.', 500), 100);
+
+  if(tickInterval) clearInterval(tickInterval);
+  tickInterval = setInterval(tick, 1000);
+}
+
+function togglePause() {
+  paused = !paused;
+  const btn = document.getElementById('pause-btn');
+  const badge = document.getElementById('paused-badge');
+  btn.textContent = paused ? '▶  RESUME' : '⏸  PAUSE';
+  badge.classList.toggle('visible', paused);
+  if(paused) { clearCallouts(); document.getElementById('timer-ring').style.animationPlayState = 'paused'; }
+  else        { document.getElementById('timer-ring').style.animationPlayState = 'running'; }
+}
+
+function stopWorkout() {
+  if(!confirm('Stop this workout session?')) return;
+  clearInterval(tickInterval);
+  clearCallouts();
+  goToSetup();
+}
+
+function showComplete() {
+  const totalWork = currentRound * cfg.roundDuration;
+  const card = document.getElementById('stats-card');
+  const focuses = cfg.focusAreas.map(f => FOCUS_AREAS.find(a=>a.id===f)?.label||f).join(', ');
+  const dur = cfg.roundDuration >= 60
+    ? `${Math.floor(cfg.roundDuration/60)}:${(cfg.roundDuration%60).toString().padStart(2,'0')}`
+    : `${cfg.roundDuration}s`;
+  card.innerHTML = [
+    ['Rounds Completed', `${cfg.rounds} / ${cfg.rounds}`],
+    ['Work Time',        `${Math.floor(totalWork/60)}m ${totalWork%60}s`],
+    ['Round Length',     dur],
+    ['Focus',            focuses],
+    ['Intensity',        cfg.intensity.charAt(0).toUpperCase()+cfg.intensity.slice(1)],
+  ].map(([l,v])=>`<div class="stat-row"><span class="stat-label">${l}</span><span class="stat-value">${v}</span></div>`).join('');
+
+  showScreen('complete-screen');
+}
+
+function goAgain() { startWorkout(); }
+function goToSetup() {
+  clearInterval(tickInterval);
+  clearCallouts();
+  showScreen('setup-screen');
+}
+
+// ── Setup UI ─────────────────────────────────────────────────
+function renderChips(containerId, options, getter, setter, label) {
+  const el = document.getElementById(containerId);
+  options.forEach(opt => {
+    const val = opt.s !== undefined ? opt.s : opt;
+    const lbl = opt.label !== undefined ? opt.label : String(opt);
+    const chip = document.createElement('div');
+    chip.className = 'chip' + (getter() === val ? ' selected' : '');
+    chip.textContent = lbl;
+    chip.onclick = () => { setter(val); renderChips(containerId, options, getter, setter, label); updateSummary(); };
+    el.appendChild(chip);
+  });
+}
+
+function renderFocus() {
+  const el = document.getElementById('focus-grid');
+  el.innerHTML = '';
+  FOCUS_AREAS.forEach(area => {
+    const chip = document.createElement('div');
+    chip.className = 'focus-chip' + (cfg.focusAreas.includes(area.id) ? ' selected' : '');
+    chip.innerHTML = `<span class="focus-icon">${area.icon}</span><span class="focus-label">${area.label}</span>`;
+    chip.onclick = () => {
+      if(cfg.focusAreas.includes(area.id)) {
+        if(cfg.focusAreas.length > 1) cfg.focusAreas = cfg.focusAreas.filter(f=>f!==area.id);
+      } else {
+        cfg.focusAreas = [...cfg.focusAreas, area.id];
+      }
+      renderFocus(); updateSummary();
+    };
+    el.appendChild(chip);
+  });
+}
+
+function renderIntensity() {
+  const el = document.getElementById('intensity-stack');
+  el.innerHTML = '';
+  INTENSITIES.forEach(opt => {
+    const chip = document.createElement('div');
+    chip.className = 'intensity-chip' + (cfg.intensity === opt.id ? ' selected' : '');
+    chip.innerHTML = `<div class="intensity-name">${opt.label}</div><div class="intensity-desc">${opt.desc}</div>`;
+    chip.onclick = () => { cfg.intensity = opt.id; renderIntensity(); };
+    el.appendChild(chip);
+  });
+}
+
+function updateSummary() {
+  const total = Math.round((cfg.rounds * cfg.roundDuration + (cfg.rounds-1) * cfg.restDuration) / 60);
+  const dur = DURATION_OPTIONS.find(d=>d.s===cfg.roundDuration);
+  document.getElementById('summary-pill').textContent =
+    `${cfg.rounds} rounds · ${dur?dur.label:''} each · ~${total} min total`;
+}
+
+// Init
+renderChips('rounds-chips', ROUNDS_OPTIONS, ()=>cfg.rounds, v=>{cfg.rounds=v;}, 'rounds');
+renderChips('duration-chips', DURATION_OPTIONS, ()=>cfg.roundDuration, v=>{cfg.roundDuration=v;}, 'duration');
+renderChips('rest-chips', REST_OPTIONS, ()=>cfg.restDuration, v=>{cfg.restDuration=v;}, 'rest');
+renderFocus();
+renderIntensity();
+updateSummary();
+</script>
+</body>
+</html>
