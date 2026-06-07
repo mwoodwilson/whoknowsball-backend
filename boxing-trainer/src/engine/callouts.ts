@@ -379,15 +379,14 @@ const buildFormCuesForLevel = (intensity: Intensity): string[] => {
 };
 
 export const buildCalloutPool = (config: WorkoutConfig): StructuredPool => {
-  const { stance } = config;
-
-  const applyStance = (arr: string[]): string[] =>
-    stance === 'southpaw' ? arr.map(mirrorForSouthpaw) : arr;
-
+  // Directional callouts (slip right, circle left, etc.) are the same for both
+  // orthodox and southpaw when training against a typical orthodox opponent —
+  // "slip right" = outside slip for both stances. mirrorForSouthpaw is exported
+  // for future use but is not applied to the pool.
   return {
-    combos: applyStance(buildCombosForConfig(config)),
-    formCues: applyStance(buildFormCuesForLevel(config.intensity)),
-    corrections: applyStance(shuffle(corrections)),
+    combos: buildCombosForConfig(config),
+    formCues: buildFormCuesForLevel(config.intensity),
+    corrections: shuffle(corrections),
     breathingCues: shuffle(breathingCues),
     encouragement: shuffle(encouragementCallouts),
   };
