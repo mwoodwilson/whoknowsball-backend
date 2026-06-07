@@ -10,12 +10,15 @@ export type FocusArea =
 
 export type Intensity = 'beginner' | 'intermediate' | 'advanced';
 
+export type Stance = 'orthodox' | 'southpaw';
+
 export interface WorkoutConfig {
   rounds: number;
   roundDuration: number; // seconds
   restDuration: number; // seconds
   focusAreas: FocusArea[];
   intensity: Intensity;
+  stance: Stance;
 }
 
 export type WorkoutPhase = 'pre_countdown' | 'round' | 'rest' | 'complete';

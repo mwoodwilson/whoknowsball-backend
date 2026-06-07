@@ -115,7 +115,7 @@ export default function WorkoutScreen({ navigation, route }: Props) {
       setSecondsLeft(config.roundDuration);
       startRingPulse(true);
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-      trainerRef.current?.startRound(1, config.roundDuration);
+      trainerRef.current?.startRound(1, config.rounds, config.roundDuration);
     } else if (current === 'round') {
       // Round ended
       totalWorkTimeRef.current += config.roundDuration;
@@ -154,7 +154,7 @@ export default function WorkoutScreen({ navigation, route }: Props) {
       setSecondsLeft(config.roundDuration);
       startRingPulse(true);
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-      trainerRef.current?.startRound(nextRound, config.roundDuration);
+      trainerRef.current?.startRound(nextRound, config.rounds, config.roundDuration);
     }
   }, [config, navigation, startRingPulse]);
 

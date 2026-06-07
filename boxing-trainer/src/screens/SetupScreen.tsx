@@ -11,7 +11,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { colors, spacing, radius, fontSize } from '../theme';
-import { FocusArea, Intensity, WorkoutConfig, RootStackParamList } from '../types';
+import { FocusArea, Intensity, Stance, WorkoutConfig, RootStackParamList } from '../types';
 import { getFocusAreaLabel } from '../engine/callouts';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Setup'>;
@@ -60,12 +60,18 @@ const INTENSITY_OPTIONS: { label: string; value: Intensity; desc: string }[] = [
   { label: 'Advanced', value: 'advanced', desc: 'Fast pace, complex combos' },
 ];
 
+const STANCE_OPTIONS: { label: string; value: Stance; desc: string }[] = [
+  { label: 'Orthodox', value: 'orthodox', desc: 'Left foot forward' },
+  { label: 'Southpaw', value: 'southpaw', desc: 'Right foot forward' },
+];
+
 export default function SetupScreen({ navigation }: Props) {
   const [rounds, setRounds] = useState(3);
   const [roundDuration, setRoundDuration] = useState(180);
   const [restDuration, setRestDuration] = useState(60);
   const [focusAreas, setFocusAreas] = useState<FocusArea[]>(['combinations']);
   const [intensity, setIntensity] = useState<Intensity>('intermediate');
+  const [stance, setStance] = useState<Stance>('orthodox');
 
   const toggleFocus = (area: FocusArea) => {
     setFocusAreas(prev =>
@@ -84,6 +90,7 @@ export default function SetupScreen({ navigation }: Props) {
       restDuration,
       focusAreas,
       intensity,
+      stance,
     };
     navigation.navigate('Workout', { config });
   };
@@ -103,6 +110,33 @@ export default function SetupScreen({ navigation }: Props) {
           <Text style={styles.logo}>CORNER</Text>
           <Text style={styles.tagline}>Your boxing trainer</Text>
         </View>
+
+        {/* Stance */}
+        <Section title="STANCE">
+          <View style={styles.stanceRow}>
+            {STANCE_OPTIONS.map(opt => (
+              <TouchableOpacity
+                key={opt.value}
+                style={[
+                  styles.stanceChip,
+                  stance === opt.value && styles.stanceChipSelected,
+                ]}
+                onPress={() => setStance(opt.value)}
+                activeOpacity={0.7}
+              >
+                <Text
+                  style={[
+                    styles.stanceLabel,
+                    stance === opt.value && styles.stanceLabelSelected,
+                  ]}
+                >
+                  {opt.label}
+                </Text>
+                <Text style={styles.stanceDesc}>{opt.desc}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </Section>
 
         {/* Rounds */}
         <Section title="ROUNDS">
@@ -388,6 +422,35 @@ const styles = StyleSheet.create({
     color: colors.primary,
   },
   intensityDesc: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    marginTop: 2,
+  },
+  stanceRow: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+  },
+  stanceChip: {
+    flex: 1,
+    padding: spacing.md,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+  },
+  stanceChipSelected: {
+    borderColor: colors.primary,
+    backgroundColor: colors.primaryGlow,
+  },
+  stanceLabel: {
+    fontSize: fontSize.md,
+    fontWeight: '700',
+    color: colors.textSecondary,
+  },
+  stanceLabelSelected: {
+    color: colors.primary,
+  },
+  stanceDesc: {
     fontSize: fontSize.xs,
     color: colors.textMuted,
     marginTop: 2,
