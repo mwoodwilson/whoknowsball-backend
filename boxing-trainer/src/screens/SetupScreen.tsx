@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -13,6 +13,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { colors, spacing, radius, fontSize } from '../theme';
 import { FocusArea, Intensity, Stance, WorkoutConfig, RootStackParamList } from '../types';
 import { getFocusAreaLabel } from '../engine/callouts';
+import { loadLastConfig, saveLastConfig } from '../utils/storage';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Setup'>;
 
@@ -73,6 +74,19 @@ export default function SetupScreen({ navigation }: Props) {
   const [intensity, setIntensity] = useState<Intensity>('intermediate');
   const [stance, setStance] = useState<Stance>('orthodox');
 
+  // Restore last session config on mount
+  useEffect(() => {
+    loadLastConfig().then(saved => {
+      if (!saved) return;
+      setRounds(saved.rounds);
+      setRoundDuration(saved.roundDuration);
+      setRestDuration(saved.restDuration);
+      setFocusAreas(saved.focusAreas);
+      setIntensity(saved.intensity);
+      setStance(saved.stance);
+    }).catch(() => {});
+  }, []);
+
   const toggleFocus = (area: FocusArea) => {
     setFocusAreas(prev =>
       prev.includes(area)
@@ -92,7 +106,12 @@ export default function SetupScreen({ navigation }: Props) {
       intensity,
       stance,
     };
+    saveLastConfig(config).catch(() => {});
     navigation.navigate('Workout', { config });
+  };
+
+  const handleHistory = () => {
+    navigation.navigate('History');
   };
 
   const totalMinutes = Math.round((rounds * roundDuration + (rounds - 1) * restDuration) / 60);
@@ -107,8 +126,13 @@ export default function SetupScreen({ navigation }: Props) {
       >
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.logo}>CORNER</Text>
-          <Text style={styles.tagline}>Your boxing trainer</Text>
+          <View>
+            <Text style={styles.logo}>CORNER</Text>
+            <Text style={styles.tagline}>Your boxing trainer</Text>
+          </View>
+          <TouchableOpacity onPress={handleHistory} activeOpacity={0.7} style={styles.historyButton}>
+            <Text style={styles.historyButtonText}>HISTORY</Text>
+          </TouchableOpacity>
         </View>
 
         {/* Stance */}
@@ -308,6 +332,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.lg,
     paddingBottom: spacing.xl,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  historyButton: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    marginTop: spacing.xs,
+  },
+  historyButtonText: {
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.textMuted,
+    letterSpacing: 1.5,
   },
   logo: {
     fontSize: 36,

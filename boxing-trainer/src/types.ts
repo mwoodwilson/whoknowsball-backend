@@ -23,6 +23,14 @@ export interface WorkoutConfig {
 
 export type WorkoutPhase = 'pre_countdown' | 'round' | 'rest' | 'complete';
 
+export interface WorkoutSession {
+  id: string;
+  date: string; // ISO string
+  roundsCompleted: number;
+  totalWorkTime: number; // seconds
+  config: WorkoutConfig;
+}
+
 export type RootStackParamList = {
   Setup: undefined;
   Workout: { config: WorkoutConfig };
@@ -31,4 +39,5 @@ export type RootStackParamList = {
     totalWorkTime: number;
     config: WorkoutConfig;
   };
+  History: undefined;
 };

@@ -13,6 +13,7 @@ import * as Haptics from 'expo-haptics';
 import { colors, spacing, fontSize, radius } from '../theme';
 import { RootStackParamList } from '../types';
 import { getFocusAreaLabel } from '../engine/callouts';
+import { saveWorkoutSession } from '../utils/storage';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Complete'>;
 
@@ -32,6 +33,14 @@ export default function CompleteScreen({ navigation, route }: Props) {
 
   useEffect(() => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+
+    saveWorkoutSession({
+      id: Date.now().toString(),
+      date: new Date().toISOString(),
+      roundsCompleted,
+      totalWorkTime,
+      config,
+    }).catch(() => {});
 
     Animated.parallel([
       Animated.timing(fadeIn, {

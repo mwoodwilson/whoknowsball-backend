@@ -6,6 +6,8 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import SetupScreen from './src/screens/SetupScreen';
 import WorkoutScreen from './src/screens/WorkoutScreen';
 import CompleteScreen from './src/screens/CompleteScreen';
+import HistoryScreen from './src/screens/HistoryScreen';
+import { ErrorBoundary } from './src/components/ErrorBoundary';
 import { RootStackParamList } from './src/types';
 import { colors } from './src/theme';
 
@@ -26,8 +28,9 @@ const navTheme = {
 
 export default function App() {
   return (
-    <SafeAreaProvider>
-      <NavigationContainer theme={navTheme}>
+    <ErrorBoundary>
+      <SafeAreaProvider>
+        <NavigationContainer theme={navTheme}>
         <Stack.Navigator
           initialRouteName="Setup"
           screenOptions={{
@@ -49,8 +52,10 @@ export default function App() {
             component={CompleteScreen}
             options={{ gestureEnabled: false }}
           />
+          <Stack.Screen name="History" component={HistoryScreen} />
         </Stack.Navigator>
-      </NavigationContainer>
-    </SafeAreaProvider>
+        </NavigationContainer>
+      </SafeAreaProvider>
+    </ErrorBoundary>
   );
 }

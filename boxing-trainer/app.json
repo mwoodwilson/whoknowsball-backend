@@ -7,18 +7,20 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
     "splash": {
+      "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#0A0A0A"
     },
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.corner.boxingtrainer",
-      "infoPlist": {
-        "NSMicrophoneUsageDescription": "Corner uses the microphone for voice commands (future feature)."
+      "privacyManifests": {
+        "NSPrivacyAccessedAPITypes": []
       }
     },
     "android": {
       "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#0A0A0A"
       },
       "package": "com.corner.boxingtrainer"
@@ -27,7 +29,10 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-speech"
-    ]
+      "expo-keep-awake"
+    ],
+    "extra": {
+      "privacyPolicyUrl": "FILL_IN_AFTER_TERMLY_SETUP"
+    }
   }
 }

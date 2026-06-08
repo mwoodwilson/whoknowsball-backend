@@ -8,10 +8,13 @@ import {
   Animated,
   StatusBar,
   Dimensions,
+  AppState,
+  AppStateStatus,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import * as Haptics from 'expo-haptics';
+import { useKeepAwake } from 'expo-keep-awake';
 import { colors, spacing, fontSize, radius } from '../theme';
 import { WorkoutPhase, RootStackParamList } from '../types';
 import { TrainerEngine } from '../engine/TrainerEngine';
@@ -30,6 +33,9 @@ const formatTime = (seconds: number): string => {
 
 export default function WorkoutScreen({ navigation, route }: Props) {
   const { config } = route.params;
+
+  // Keep screen awake for the entire workout
+  useKeepAwake();
 
   const [phase, setPhase] = useState<WorkoutPhase>('pre_countdown');
   const [currentRound, setCurrentRound] = useState(1);
@@ -99,6 +105,21 @@ export default function WorkoutScreen({ navigation, route }: Props) {
     },
     [animateCallout],
   );
+
+  // Auto-pause when app goes to background (phone call, home button, etc.)
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (nextState: AppStateStatus) => {
+      if (nextState === 'background' || nextState === 'inactive') {
+        if (!isPausedRef.current && phaseRef.current !== 'complete') {
+          isPausedRef.current = true;
+          setIsPaused(true);
+          trainerRef.current?.stop();
+          startRingPulse(false);
+        }
+      }
+    });
+    return () => subscription.remove();
+  }, [startRingPulse]);
 
   // Phase transition logic (called from inside the interval — use refs)
   const transitionPhase = useCallback(() => {
