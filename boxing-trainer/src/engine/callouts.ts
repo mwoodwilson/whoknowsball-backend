@@ -73,28 +73,28 @@ const advancedCombos: string[] = [
 // ─── Defensive integrated — written orthodox, mirror handles southpaw ─────────
 
 const defensiveIntegrated: string[] = [
-  'One-two — slip right — two-three.',
+  'One-two — slip left — two-three.',
   'One-two — roll — three-two.',
   'One-two — pivot left — one-two.',
-  'Slip right. Counter with the two.',
+  'Slip left. Counter with the two.',
   'Throw, move your head, throw again.',
   'One-two-three — slip left — come back.',
   'After every combo — head movement.',
-  'One-two — slip right — two-three — slip left.',
+  'One-two — slip left — two-three — slip right.',
   'Roll under, come up with the three.',
   'Slip left, fire back. Slip right, fire back.',
-  'One-two, step right, come back with the three.',
+  'One-two, step left, come back with the three.',
   'Pivot left off the cross. Fire from the angle.',
 ];
 
 // ─── Advanced defensive integrated ────────────────────────────────────────────
 
 const advancedDefensiveIntegrated: string[] = [
-  'Slip right-one-two-roll-three-two-pivot.',
+  'Slip left-one-two-roll-three-two-pivot.',
   'Pull back, counter with the two.',
   'Catch the jab, fire the two right behind it.',
   'Shoulder roll, fire two back along the same line.',
-  'One-two, slip right, two-three, slip left. Keep going.',
+  'One-two, slip left, two-three, slip right. Keep going.',
   'Slip left, slip right, one-two-three. Go.',
 ];
 
@@ -128,7 +128,7 @@ const footworkCallouts: string[] = [
   'Jab and step out. Don\'t stand there.',
   'Pivot left after — lead foot is your axis.',
   'In and out. In and out behind the jab.',
-  'Step right. Cut the angle. Fire.',
+  'Step left. Cut the angle. Fire.',
   'Move your feet every time you throw.',
   'Don\'t back straight up — angle out to the left.',
   'Step-drag. Step-drag. Stay light.',
@@ -379,14 +379,13 @@ const buildFormCuesForLevel = (intensity: Intensity): string[] => {
 };
 
 export const buildCalloutPool = (config: WorkoutConfig): StructuredPool => {
-  // Directional callouts (slip right, circle left, etc.) are the same for both
-  // orthodox and southpaw when training against a typical orthodox opponent —
-  // "slip right" = outside slip for both stances. mirrorForSouthpaw is exported
-  // for future use but is not applied to the pool.
+  const applyStance = config.stance === 'southpaw'
+    ? mirrorForSouthpaw
+    : (s: string) => s;
   return {
-    combos: buildCombosForConfig(config),
-    formCues: buildFormCuesForLevel(config.intensity),
-    corrections: shuffle(corrections),
+    combos: buildCombosForConfig(config).map(applyStance),
+    formCues: buildFormCuesForLevel(config.intensity).map(applyStance),
+    corrections: shuffle(corrections).map(applyStance),
     breathingCues: shuffle(breathingCues),
     encouragement: shuffle(encouragementCallouts),
   };
