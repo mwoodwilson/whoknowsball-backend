@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Animated,
   StatusBar,
+  Share,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -55,6 +56,24 @@ export default function CompleteScreen({ navigation, route }: Props) {
       }),
     ]).start();
   }, [fadeIn, slideUp]);
+
+  const handleShare = async () => {
+    const focusLabel = config.focusAreas.map(getFocusAreaLabel).join(', ');
+    const intensity = config.intensity.charAt(0).toUpperCase() + config.intensity.slice(1);
+    const date = new Date().toLocaleDateString('en-US', {
+      weekday: 'long',
+      month: 'long',
+      day: 'numeric',
+    });
+
+    await Share.share({
+      message:
+        `🥊 CORNER — Workout Complete\n\n` +
+        `${roundsCompleted}/${config.rounds} rounds · ${formatDuration(totalWorkTime)}\n` +
+        `${intensity} · ${focusLabel}\n\n` +
+        `${date}`,
+    });
+  };
 
   const handleGoAgain = () => {
     navigation.replace('Workout', { config });
@@ -122,13 +141,37 @@ export default function CompleteScreen({ navigation, route }: Props) {
 
         {/* Actions */}
         <View style={styles.actions}>
-          <TouchableOpacity style={styles.goAgainButton} onPress={handleGoAgain} activeOpacity={0.85}>
+          <TouchableOpacity
+            style={styles.goAgainButton}
+            onPress={handleGoAgain}
+            activeOpacity={0.85}
+            accessibilityRole="button"
+            accessibilityLabel="Do the same workout again"
+          >
             <Text style={styles.goAgainText}>GO AGAIN</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.setupButton} onPress={handleSetup} activeOpacity={0.8}>
-            <Text style={styles.setupButtonText}>CHANGE SETTINGS</Text>
-          </TouchableOpacity>
+          <View style={styles.secondaryRow}>
+            <TouchableOpacity
+              style={[styles.secondaryButton, styles.shareButton]}
+              onPress={handleShare}
+              activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel="Share this workout"
+            >
+              <Text style={styles.shareButtonText}>SHARE</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.secondaryButton, styles.setupButton]}
+              onPress={handleSetup}
+              activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel="Change workout settings"
+            >
+              <Text style={styles.setupButtonText}>CHANGE SETTINGS</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </Animated.View>
     </SafeAreaView>
@@ -238,17 +281,33 @@ const styles = StyleSheet.create({
     color: colors.white,
     letterSpacing: 2,
   },
-  setupButton: {
+  secondaryRow: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+  },
+  secondaryButton: {
+    flex: 1,
     paddingVertical: spacing.md,
     borderRadius: radius.lg,
     alignItems: 'center',
     borderWidth: 1,
+  },
+  shareButton: {
+    borderColor: colors.rest,
+  },
+  shareButtonText: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.rest,
+    letterSpacing: 1.5,
+  },
+  setupButton: {
     borderColor: colors.border,
   },
   setupButtonText: {
     fontSize: fontSize.sm,
     fontWeight: '700',
     color: colors.textSecondary,
-    letterSpacing: 1.5,
+    letterSpacing: 1,
   },
 });

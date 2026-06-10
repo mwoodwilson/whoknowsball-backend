@@ -11,6 +11,7 @@ import {
   AppState,
   AppStateStatus,
 } from 'react-native';
+import Svg, { Circle } from 'react-native-svg';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import * as Haptics from 'expo-haptics';
@@ -25,12 +26,43 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Workout'>;
 const PRE_COUNTDOWN_SECONDS = 10;
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const RING_SIZE = SCREEN_WIDTH * 0.72;
+const ARC_STROKE = 5;
 
 const formatTime = (seconds: number): string => {
   const m = Math.floor(seconds / 60);
   const s = seconds % 60;
   return `${m}:${s.toString().padStart(2, '0')}`;
 };
+
+// SVG arc that drains clockwise as the rest timer counts down.
+function RestArc({ size, progress }: { size: number; progress: number }) {
+  const r = (size - ARC_STROKE) / 2;
+  const circumference = 2 * Math.PI * r;
+  const dashOffset = circumference * (1 - Math.max(0, Math.min(1, progress)));
+
+  return (
+    <Svg
+      width={size}
+      height={size}
+      style={StyleSheet.absoluteFill}
+      pointerEvents="none"
+    >
+      <Circle
+        cx={size / 2}
+        cy={size / 2}
+        r={r}
+        stroke={colors.rest}
+        strokeWidth={ARC_STROKE}
+        fill="none"
+        strokeDasharray={circumference}
+        strokeDashoffset={dashOffset}
+        strokeLinecap="round"
+        rotation="-90"
+        origin={`${size / 2}, ${size / 2}`}
+      />
+    </Svg>
+  );
+}
 
 export default function WorkoutScreen({ navigation, route }: Props) {
   const { config } = route.params;
@@ -254,8 +286,8 @@ export default function WorkoutScreen({ navigation, route }: Props) {
   const isRest = phase === 'rest';
   const isCountdown = phase === 'pre_countdown';
 
-  const ringColor = isRound ? colors.primary : isRest ? colors.rest : colors.textMuted;
-  const ringGlow = isRound ? colors.primaryGlow : isRest ? colors.restGlow : 'transparent';
+  const ringColor = isRound ? colors.primary : isRest ? colors.border : colors.textMuted;
+  const ringGlow = isRound ? colors.primaryGlow : 'transparent';
 
   const phaseLabel = isCountdown
     ? 'GET READY'
@@ -264,6 +296,8 @@ export default function WorkoutScreen({ navigation, route }: Props) {
       : `ROUND ${currentRound}`;
 
   const phaseColor = isRound ? colors.primary : isRest ? colors.rest : colors.textMuted;
+
+  const restProgress = isRest ? secondsLeft / config.restDuration : 1;
 
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
@@ -305,24 +339,29 @@ export default function WorkoutScreen({ navigation, route }: Props) {
 
       {/* Timer ring */}
       <View style={styles.center}>
-        <Animated.View
-          style={[
-            styles.ring,
-            {
-              borderColor: ringColor,
-              shadowColor: ringColor,
-              backgroundColor: ringGlow,
-              transform: [{ scale: ringPulse }],
-            },
-          ]}
-        >
-          <Text style={[styles.timerText, isRound && secondsLeft <= 10 && styles.timerTextWarning]}>
-            {isCountdown ? secondsLeft : formatTime(secondsLeft)}
-          </Text>
-          <Text style={[styles.timerSubLabel, { color: phaseColor }]}>
-            {isCountdown ? 'seconds' : isRest ? 'rest' : 'remaining'}
-          </Text>
-        </Animated.View>
+        <View style={styles.ringContainer}>
+          <Animated.View
+            style={[
+              styles.ring,
+              {
+                borderColor: ringColor,
+                shadowColor: isRound ? colors.primary : colors.rest,
+                backgroundColor: ringGlow,
+                transform: [{ scale: ringPulse }],
+              },
+            ]}
+          >
+            <Text style={[styles.timerText, isRound && secondsLeft <= 10 && styles.timerTextWarning]}>
+              {isCountdown ? secondsLeft : formatTime(secondsLeft)}
+            </Text>
+            <Text style={[styles.timerSubLabel, { color: phaseColor }]}>
+              {isCountdown ? 'seconds' : isRest ? 'rest' : 'remaining'}
+            </Text>
+          </Animated.View>
+
+          {/* Draining arc overlay during rest */}
+          {isRest && <RestArc size={RING_SIZE} progress={restProgress} />}
+        </View>
       </View>
 
       {/* Callout display */}
@@ -411,6 +450,10 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  ringContainer: {
+    width: RING_SIZE,
+    height: RING_SIZE,
   },
   ring: {
     width: RING_SIZE,
