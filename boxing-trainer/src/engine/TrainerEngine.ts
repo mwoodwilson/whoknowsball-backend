@@ -25,7 +25,8 @@ const poolBankKey: Record<CalloutType, keyof StructuredPool> = {
 };
 
 export class TrainerEngine {
-  private timeouts: ReturnType<typeof setTimeout>[] = [];
+  private pending: { text: string; fireAt: number; id: ReturnType<typeof setTimeout> }[] = [];
+  private suspended: { text: string; remainingMs: number }[] = [];
   private onCallout: CalloutListener;
   private config: WorkoutConfig;
   private pool: StructuredPool;
@@ -44,7 +45,9 @@ export class TrainerEngine {
   }
 
   private speak(text: string, delayMs = 0): void {
+    const fireAt = Date.now() + delayMs;
     const id = setTimeout(() => {
+      this.pending = this.pending.filter(p => p.id !== id);
       this.onCallout(text);
       Speech.stop();
       Speech.speak(text, {
@@ -53,7 +56,7 @@ export class TrainerEngine {
         language: 'en-US',
       });
     }, delayMs);
-    this.timeouts.push(id);
+    this.pending.push({ text, fireAt, id });
   }
 
   private draw(type: CalloutType): string {
@@ -73,6 +76,7 @@ export class TrainerEngine {
 
   startRound(roundNum: number, totalRounds: number, durationSeconds: number): void {
     this.clearTimeouts();
+    this.suspended = [];
     // Reshuffle pool each round for variety
     this.pool = buildCalloutPool(this.config);
     this.resetIndices();
@@ -100,6 +104,7 @@ export class TrainerEngine {
 
   startRest(restDurationSeconds: number, nextRoundNum: number, isFinalRound: boolean): void {
     this.clearTimeouts();
+    this.suspended = [];
 
     const pick = <T>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
 
@@ -128,13 +133,31 @@ export class TrainerEngine {
     }
   }
 
-  stop(): void {
+  // Suspends scheduled callouts, preserving each one's remaining delay so
+  // resume() can pick up exactly where the round left off.
+  pause(): void {
+    const now = Date.now();
+    this.suspended = this.pending
+      .map(p => ({ text: p.text, remainingMs: p.fireAt - now }))
+      .filter(p => p.remainingMs > 0);
     this.clearTimeouts();
     Speech.stop();
   }
 
+  resume(): void {
+    const items = this.suspended;
+    this.suspended = [];
+    items.forEach(p => this.speak(p.text, p.remainingMs));
+  }
+
+  stop(): void {
+    this.clearTimeouts();
+    this.suspended = [];
+    Speech.stop();
+  }
+
   private clearTimeouts(): void {
-    this.timeouts.forEach(clearTimeout);
-    this.timeouts = [];
+    this.pending.forEach(p => clearTimeout(p.id));
+    this.pending = [];
   }
 }

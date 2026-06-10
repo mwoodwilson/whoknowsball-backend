@@ -130,7 +130,13 @@ export default function SetupScreen({ navigation }: Props) {
             <Text style={styles.logo}>CORNER</Text>
             <Text style={styles.tagline}>Your boxing trainer</Text>
           </View>
-          <TouchableOpacity onPress={handleHistory} activeOpacity={0.7} style={styles.historyButton}>
+          <TouchableOpacity
+            onPress={handleHistory}
+            activeOpacity={0.7}
+            style={styles.historyButton}
+            accessibilityRole="button"
+            accessibilityLabel="Workout history"
+          >
             <Text style={styles.historyButtonText}>HISTORY</Text>
           </TouchableOpacity>
         </View>
@@ -147,6 +153,9 @@ export default function SetupScreen({ navigation }: Props) {
                 ]}
                 onPress={() => setStance(opt.value)}
                 activeOpacity={0.7}
+                accessibilityRole="button"
+                accessibilityState={{ selected: stance === opt.value }}
+                accessibilityLabel={`${opt.label} stance, ${opt.desc}`}
               >
                 <Text
                   style={[
@@ -216,6 +225,9 @@ export default function SetupScreen({ navigation }: Props) {
                 ]}
                 onPress={() => toggleFocus(area)}
                 activeOpacity={0.7}
+                accessibilityRole="button"
+                accessibilityState={{ selected: focusAreas.includes(area) }}
+                accessibilityLabel={getFocusAreaLabel(area)}
               >
                 <Text style={styles.focusIcon}>{FOCUS_ICONS[area]}</Text>
                 <Text
@@ -243,6 +255,9 @@ export default function SetupScreen({ navigation }: Props) {
                 ]}
                 onPress={() => setIntensity(opt.value)}
                 activeOpacity={0.7}
+                accessibilityRole="button"
+                accessibilityState={{ selected: intensity === opt.value }}
+                accessibilityLabel={`${opt.label} intensity, ${opt.desc}`}
               >
                 <Text
                   style={[
@@ -269,7 +284,13 @@ export default function SetupScreen({ navigation }: Props) {
 
       {/* Start Button */}
       <View style={styles.footer}>
-        <TouchableOpacity style={styles.startButton} onPress={handleStart} activeOpacity={0.85}>
+        <TouchableOpacity
+          style={styles.startButton}
+          onPress={handleStart}
+          activeOpacity={0.85}
+          accessibilityRole="button"
+          accessibilityLabel={`Start training, ${rounds} rounds`}
+        >
           <Text style={styles.startButtonText}>START TRAINING</Text>
         </TouchableOpacity>
       </View>
@@ -311,6 +332,9 @@ function Chip({
       style={[styles.chip, selected && styles.chipSelected]}
       onPress={onPress}
       activeOpacity={0.7}
+      accessibilityRole="button"
+      accessibilityState={{ selected }}
+      accessibilityLabel={label}
     >
       <Text style={[styles.chipText, selected && styles.chipTextSelected]}>{label}</Text>
     </TouchableOpacity>

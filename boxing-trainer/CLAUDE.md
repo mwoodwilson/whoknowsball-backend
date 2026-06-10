@@ -40,6 +40,7 @@ src/
     storage.ts                 AsyncStorage wrapper (lastConfig + workoutHistory)
 __tests__/
   callouts.test.ts             smoke tests for callout engine
+  TrainerEngine.test.ts        pause/resume lifecycle tests (fake timers)
 __mocks__/
   expo-speech.js               Jest stub
   expo-haptics.js              Jest stub
